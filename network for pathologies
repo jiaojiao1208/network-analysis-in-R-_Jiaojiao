@@ -1,0 +1,55 @@
+## 1.install and load relative packages 
+```{r}
+install(gemtc)
+install(rjags)
+library(gemtc)
+library(rjags)
+```
+
+## 2.read your data needed to be analysis
+```{r}
+data<- read.csv("your file name.csv",header=T,sep = ","),
+ pathologies<- read.table(textConnection('
+
+ id description
+
+ A "Tumor"
+
+ B "MCD"
+
+ C "MTS"
+
+ D "Dual pathology" 
+ 
+ E "Others"'), header=TRUE)
+ ```
+## 3. use the plot function to generate a network plot 
+```{r}
+ network_data<- mtc.network(data, treatments=pathologies)
+plot(network_data,use.description  = TRUE,
+  vertex.color="skyblue",
+  vertex.size=25,
+  vertex.label.dist=5,
+  vertex.label.color="black",
+  edge.color= "slategrey")
+  ```
+  
+  ## 4. Assessing Inconsistency: The Nodesplit Method  
+  ```{r}
+  nodesplit <- mtc.nodesplit(network_data, 
+                           linearModel = "random", 
+                           likelihood = "binom",
+                           link = "logit",
+                           n.adapt = 5000, 
+                           n.iter = 1e5, 
+                           thin = 10)
+   summary(nodesplit)  ##  Using the summary function, we can print the results.
+   plot(summary(nodesplit))  ## generate a forest plot for the nodesplit model
+     ```
+   ## 5. Generating the Network Meta-Analysis Results
+    ```{r}
+   forest(relative.effect(network_data, t1 = "MCD"), ## we use MCD as the reference group       
+            use.description = TRUE, # Use the longer pathology names instead of "A B C D E"
+    ```
+            
+      
